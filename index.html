@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>スケジュール確認</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<style>
+  :root{
+    --cream:#FBF7F2;
+    --paper:#FFFDFA;
+    --ink:#2A2420;
+    --muted:#8A8078;
+    --line:#E6DDD0;
+    --wine:#7A2E38;
+    --wine-soft:#F1E2E1;
+    --sage:#5F6E4F;
+    --sage-soft:#E7ECDE;
+    --gold:#B8894A;
+    --danger:#B4483F;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:transparent;}
+  body{
+    font-family:'Zen Kaku Gothic New', sans-serif;
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{
+    max-width:560px;
+    margin:0 auto;
+    background:var(--cream);
+    min-height:100vh;
+    padding:28px 20px 40px;
+  }
+  header{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    margin-bottom:22px;
+  }
+  h1{
+    font-family:'Zen Kaku Gothic New', sans-serif;
+    font-weight:700;
+    font-size:24px;
+    line-height:1.3;
+    margin:0 0 4px;
+    letter-spacing:0;
+    display:flex;
+    align-items:center;
+    gap:9px;
+  }
+  .h1-icon{ flex-shrink:0; }
+  .sub{
+    font-size:12.5px;
+    color:var(--muted);
+    margin:0;
+  }
+  .gear{
+    border:none;
+    background:none;
+    cursor:pointer;
+    padding:6px;
+    color:var(--muted);
+    margin-top:2px;
+    flex-shrink:0;
+  }
+  .gear:hover{ color:var(--ink); }
+
+  /* progress ribbon */
+  .progress-wrap{
+    margin:18px 0 24px;
+  }
+  .progress-row{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    margin-bottom:8px;
+  }
+  .progress-label{
+    font-size:12px;
+    color:var(--muted);
+    letter-spacing:.03em;
+  }
+  .progress-count{
+    font-family:'Shippori Mincho', serif;
+    font-size:15px;
+    color:var(--wine);
+  }
+  .ribbon-track{
+    position:relative;
+    height:10px;
+    background:var(--wine-soft);
+    clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 50%, calc(100% - 6px) 100%, 0 100%);
+  }
+  .ribbon-fill{
+    position:absolute;
+    top:0; left:0; bottom:0;
+    background:var(--wine);
+    transition:width .5s ease;
+    clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 50%, calc(100% - 6px) 100%, 0 100%);
+  }
+
+  /* add task */
+  .add-bar{
+    border:1px solid var(--line);
+    background:var(--paper);
+    border-radius:2px;
+    padding:12px 14px;
+    margin-bottom:26px;
+  }
+  .add-trigger{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    cursor:pointer;
+    color:var(--muted);
+    font-size:14px;
+  }
+  .add-trigger .plus{
+    font-size:17px;
+    color:var(--wine);
+    font-weight:500;
+  }
+  .add-form{ display:none; margin-top:14px; }
+  .add-form.open{ display:block; }
+  .add-form input[type=text], .add-form input[type=date], .add-form textarea{
+    width:100%;
+    font-family:inherit;
+    font-size:14px;
+    border:none;
+    border-bottom:1px solid var(--line);
+    background:transparent;
+    padding:8px 2px;
+    margin-bottom:12px;
+    color:var(--ink);
+  }
+  .add-form input:focus, .add-form textarea:focus{
+    outline:none;
+    border-bottom-color:var(--wine);
+  }
+  .add-form textarea{ resize:none; height:44px; }
+  .field-label{
+    font-size:11px;
+    color:var(--muted);
+    letter-spacing:.04em;
+    margin-bottom:6px;
+    display:block;
+  }
+  .assignee-picker{
+    display:flex;
+    gap:8px;
+    margin-bottom:14px;
+  }
+  .assignee-btn{
+    flex:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    padding:8px 6px;
+    border:1px solid var(--line);
+    background:var(--paper);
+    border-radius:2px;
+    font-size:12.5px;
+    color:var(--ink);
+    cursor:pointer;
+    font-family:inherit;
+  }
+  .assignee-btn.active{
+    border-color:currentColor;
+  }
+  .assignee-btn[data-a="a"].active{ color:var(--wine); background:var(--wine-soft); }
+  .assignee-btn[data-a="b"].active{ color:var(--sage); background:var(--sage-soft); }
+  .assignee-btn[data-a="together"].active{ color:var(--gold); background:#F3E9DB; }
+  .assignee-btn[data-a="each"].active{ color:var(--ink); background:#EDE7DD; }
+
+  .note-field{ display:none; }
+  .note-field.active{ display:block; }
+  .note-each-label{
+    font-size:11px;
+    color:var(--muted);
+    margin-bottom:5px;
+  }
+
+  .row-2{ display:flex; gap:12px; }
+  .row-2 > div{ flex:1; }
+
+  .form-actions{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    margin-top:4px;
+  }
+  .btn{
+    font-family:inherit;
+    font-size:13px;
+    padding:8px 16px;
+    border-radius:2px;
+    cursor:pointer;
+    border:1px solid var(--line);
+    background:var(--paper);
+    color:var(--ink);
+  }
+  .btn.primary{
+    background:var(--wine);
+    border-color:var(--wine);
+    color:#fff;
+  }
+  .btn.primary:disabled{
+    opacity:.4;
+    cursor:default;
+  }
+
+  /* task list */
+  .section-label{
+    font-size:11.5px;
+    color:var(--muted);
+    letter-spacing:.05em;
+    margin:0 0 6px 2px;
+  }
+  ul.tasks{ list-style:none; margin:0 0 8px; padding:0; }
+  .task{
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+    padding:13px 2px;
+    border-bottom:1px solid var(--line);
+  }
+  .task.done{ opacity:.55; }
+  .check{
+    flex-shrink:0;
+    width:19px; height:19px;
+    border-radius:50%;
+    border:1.5px solid var(--wine);
+    margin-top:2px;
+    cursor:pointer;
+    position:relative;
+    background:var(--paper);
+  }
+  .task.done .check{ background:var(--wine); }
+  .task.done .check::after{
+    content:'';
+    position:absolute;
+    left:5px; top:2px;
+    width:5px; height:9px;
+    border:solid #fff;
+    border-width:0 1.6px 1.6px 0;
+    transform:rotate(40deg);
+  }
+  .task-body{ flex:1; min-width:0; }
+  .task-title{
+    font-size:14.5px;
+    line-height:1.5;
+  }
+  .task.done .task-title{ text-decoration:line-through; }
+  .task-meta{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-top:4px;
+    font-size:11.5px;
+    color:var(--muted);
+  }
+  .rings{ display:inline-flex; align-items:center; }
+  .rings svg{ display:block; }
+  .assignee-name{ color:var(--ink); }
+  .assignee-name.a{ color:var(--wine); }
+  .assignee-name.b{ color:var(--sage); }
+  .assignee-name.together{ color:var(--gold); }
+  .assignee-name.each{ color:var(--ink); }
+  .due{ white-space:nowrap; }
+  .due.overdue{ color:var(--danger); }
+  .note{
+    font-size:12.5px;
+    color:var(--muted);
+    font-style:italic;
+    margin-top:5px;
+    line-height:1.5;
+  }
+  .note-each-row{
+    font-size:12.5px;
+    color:var(--muted);
+    font-style:italic;
+    margin-top:4px;
+    line-height:1.5;
+  }
+  .note-each-row b{
+    font-style:normal;
+    color:var(--ink);
+    font-weight:500;
+  }
+  .note-input{
+    display:block;
+    width:100%;
+    font-family:inherit;
+    font-size:12.5px;
+    color:var(--ink);
+    background:transparent;
+    border:none;
+    border-bottom:1px dashed var(--line);
+    padding:4px 0;
+    margin-top:6px;
+    resize:none;
+    min-height:22px;
+    box-sizing:border-box;
+  }
+  .note-input:focus{
+    outline:none;
+    border-bottom-color:var(--wine);
+  }
+  .note-input::placeholder{ color:var(--muted); opacity:.7; }
+  .note-each-name{
+    font-size:11px;
+    color:var(--muted);
+    margin-top:6px;
+  }
+  .del{
+    flex-shrink:0;
+    border:none;
+    background:none;
+    color:var(--muted);
+    cursor:pointer;
+    font-size:15px;
+    padding:2px 4px;
+    margin-top:1px;
+  }
+  .del:hover{ color:var(--danger); }
+  .task-actions{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:2px;
+    flex-shrink:0;
+  }
+  .edit-btn{
+    border:none;
+    background:none;
+    color:var(--muted);
+    cursor:pointer;
+    font-size:13px;
+    padding:2px 4px;
+  }
+  .edit-btn:hover{ color:var(--wine); }
+  .form-mode-label{
+    display:none;
+    font-size:12px;
+    color:var(--wine);
+    margin-bottom:10px;
+    font-weight:500;
+  }
+  .form-mode-label.active{ display:block; }
+
+  .dual-check-group{
+    display:flex;
+    flex-direction:row;
+    gap:14px;
+    flex-shrink:0;
+    padding-top:1px;
+  }
+  .dual-check{
+    display:flex;
+    align-items:center;
+    gap:5px;
+    font-size:11.5px;
+    color:var(--muted);
+    cursor:pointer;
+    user-select:none;
+  }
+  .dual-check input[type=checkbox]{
+    width:14px; height:14px;
+    margin:0;
+    accent-color:var(--wine);
+    cursor:pointer;
+  }
+  .timeline-wrap{ margin: 4px 0 26px; }
+  .timeline{
+    border-left: 2px solid var(--line);
+    margin-left: 13px;
+  }
+  .tl-item{
+    position: relative;
+    padding: 2px 0 20px 30px;
+  }
+  .tl-icon{
+    position:absolute;
+    left:-15px; top:-2px;
+    width:28px; height:28px;
+    border-radius:50%;
+    background:var(--paper);
+    border:1.5px solid var(--wine);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .tl-item.today .tl-icon{ border-color:var(--gold); }
+  .tl-month{
+    font-family:'Zen Kaku Gothic New', sans-serif;
+    font-weight:700;
+    font-size:12px;
+    color:var(--wine);
+    margin-bottom:2px;
+  }
+  .tl-title{
+    font-size:14.5px;
+    font-weight:500;
+    margin-bottom:3px;
+  }
+  .tl-desc{
+    font-size:12px;
+    color:var(--muted);
+    line-height:1.6;
+  }
+
+  details.done-group{ margin-top:6px; }
+  details.done-group summary{
+    cursor:pointer;
+    font-size:12.5px;
+    color:var(--muted);
+    padding:8px 2px;
+    list-style:none;
+  }
+  details.done-group summary::-webkit-details-marker{ display:none; }
+  details.done-group summary::before{
+    content:'▸ ';
+  }
+  details.done-group[open] summary::before{ content:'▾ '; }
+
+  .empty{
+    text-align:center;
+    padding:40px 10px;
+    color:var(--muted);
+    font-size:13.5px;
+    line-height:1.8;
+  }
+
+  footer{
+    margin-top:30px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    font-size:11px;
+    color:var(--muted);
+  }
+  .sync-dot{
+    display:inline-block;
+    width:6px; height:6px;
+    border-radius:50%;
+    background:var(--sage);
+    margin-right:5px;
+  }
+  .sync-dot.saving{ background:var(--gold); }
+  .refresh-btn{
+    border:none; background:none; color:var(--muted);
+    font-size:11px; text-decoration:underline; cursor:pointer;
+    font-family:inherit;
+  }
+
+  /* modal */
+  .overlay{
+    position:fixed; inset:0;
+    background:rgba(42,36,32,.4);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:10;
+  }
+  .overlay.open{ display:flex; }
+  .modal{
+    background:var(--paper);
+    max-width:400px;
+    width:100%;
+    padding:24px;
+    border-radius:2px;
+  }
+  .modal h2{
+    font-family:'Shippori Mincho', serif;
+    font-size:18px;
+    margin:0 0 16px;
+  }
+  .modal label{
+    display:block;
+    font-size:11.5px;
+    color:var(--muted);
+    margin-bottom:5px;
+  }
+  .modal input[type=text]{
+    width:100%;
+    font-family:inherit;
+    font-size:14px;
+    border:none;
+    border-bottom:1px solid var(--line);
+    background:transparent;
+    padding:8px 2px;
+    margin-bottom:16px;
+  }
+  .modal input:focus{ outline:none; border-bottom-color:var(--wine); }
+  .modal p.note-text{
+    font-size:11.5px;
+    color:var(--muted);
+    line-height:1.7;
+    margin:16px 0 0;
+    border-top:1px solid var(--line);
+    padding-top:14px;
+  }
+  .modal .form-actions{ margin-top:18px; }
+
+  .celebrate-overlay{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    overflow:hidden;
+    z-index:50;
+  }
+  .confetti{
+    position:absolute;
+    top:-20px;
+    width:7px;
+    height:13px;
+    opacity:.9;
+    animation-name:confetti-fall;
+    animation-timing-function:ease-in;
+    animation-fill-mode:forwards;
+  }
+  @keyframes confetti-fall{
+    to{ transform:translateY(112vh) rotate(560deg); opacity:0; }
+  }
+  .celebrate-message{
+    position:fixed;
+    top:38%;
+    left:50%;
+    transform:translate(-50%,-50%) scale(.85);
+    background:var(--paper);
+    border:1px solid var(--line);
+    padding:22px 32px;
+    border-radius:2px;
+    text-align:center;
+    box-shadow:0 10px 34px rgba(42,36,32,.16);
+    z-index:51;
+    opacity:0;
+    animation:celebrate-pop .5s ease forwards;
+  }
+  .celebrate-message .big{
+    font-family:'Zen Kaku Gothic New', sans-serif;
+    font-weight:700;
+    font-size:18px;
+    color:var(--wine);
+    margin-bottom:4px;
+  }
+  .celebrate-message .small{
+    font-size:12px;
+    color:var(--muted);
+  }
+  @keyframes celebrate-pop{
+    0%{ opacity:0; transform:translate(-50%,-50%) scale(.85); }
+    60%{ opacity:1; transform:translate(-50%,-50%) scale(1.04); }
+    100%{ opacity:1; transform:translate(-50%,-50%) scale(1); }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <div>
+      <h1>
+        <svg class="h1-icon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#7A2E38" stroke-width="1.6">
+          <rect x="3.5" y="5" width="17" height="15" rx="2"></rect>
+          <line x1="3.5" y1="9.5" x2="20.5" y2="9.5"></line>
+          <line x1="7.5" y1="3" x2="7.5" y2="6.5"></line>
+          <line x1="16.5" y1="3" x2="16.5" y2="6.5"></line>
+          <path d="M7.5 13.5l2 2 4-4" stroke="#5F6E4F"></path>
+        </svg>
+        スケジュール確認
+      </h1>
+      <p class="sub">同じ画面を開いた二人の間で、チェックが自動的に共有されます</p>
+    </div>
+    <button class="gear" id="openSettings" title="担当者名を設定" aria-label="設定">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+        <circle cx="12" cy="12" r="3"></circle>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+      </svg>
+    </button>
+  </header>
+
+  <div class="timeline-wrap">
+    <p class="section-label">スケジュールの流れ</p>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7A2E38" stroke-width="1.8">
+            <path d="M4 4h16v12H8l-4 4V4z"></path>
+          </svg>
+        </div>
+        <div class="tl-month">9月</div>
+        <div class="tl-title">報告・段取り</div>
+        <div class="tl-desc">両親への報告／挨拶の日程を相談／顔合わせの候補日を出す／指輪探しを始める</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-icon">
+          <svg width="15" height="9" viewBox="0 0 26 14">
+            <circle cx="9" cy="7" r="5.5" fill="none" stroke="#7A2E38" stroke-width="1.8"/>
+            <circle cx="17" cy="7" r="5.5" fill="none" stroke="#5F6E4F" stroke-width="1.8"/>
+          </svg>
+        </div>
+        <div class="tl-month">10月</div>
+        <div class="tl-title">顔合わせ・指輪</div>
+        <div class="tl-desc">両家顔合わせの日程・お店を決定／指輪の試着・比較検討／式をするか方向性を決める</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7A2E38" stroke-width="1.8">
+            <rect x="4" y="3" width="16" height="18" rx="1.5"></rect>
+            <path d="M8 9h8M8 13h8M8 17h5"></path>
+          </svg>
+        </div>
+        <div class="tl-month">11月</div>
+        <div class="tl-title">決定・準備</div>
+        <div class="tl-desc">両家顔合わせ実施／指輪を決定・注文／名字を決定／証人を決める／会社へ報告</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7A2E38" stroke-width="1.8">
+            <circle cx="10.5" cy="10.5" r="6.5"></circle>
+            <path d="M20 20l-4.5-4.5"></path>
+            <path d="M7.5 10.5l2 2 3.5-4" stroke="#5F6E4F"></path>
+          </svg>
+        </div>
+        <div class="tl-month">12月前半</div>
+        <div class="tl-title">最終確認</div>
+        <div class="tl-desc">指輪受け取り／必要書類の最終チェック／休日受付の可否を確認</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7A2E38" stroke-width="1.8">
+            <path d="M4 21V4l14 6.5L4 12"></path>
+          </svg>
+        </div>
+        <div class="tl-month">12/12（土）</div>
+        <div class="tl-title">提出日</div>
+        <div class="tl-desc">婚姻届を提出／その後、順番に会社・免許・銀行などの名義変更へ</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-row">
+      <span class="progress-label">進捗</span>
+      <span class="progress-count" id="progressCount">0 / 0 完了</span>
+    </div>
+    <div class="ribbon-track">
+      <div class="ribbon-fill" id="ribbonFill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div class="add-bar">
+    <div class="add-trigger" id="addTrigger">
+      <span class="plus">＋</span>
+      <span>タスクを追加</span>
+    </div>
+    <div class="add-form" id="addForm">
+      <div class="form-mode-label" id="formModeLabel">タスクを編集</div>
+      <label class="field-label">やること</label>
+      <input type="text" id="newTitle" placeholder="例）会場の最終見積りを確認する">
+      <label class="field-label">担当</label>
+      <div class="assignee-picker" id="assigneePicker">
+        <button type="button" class="assignee-btn" data-a="a"></button>
+        <button type="button" class="assignee-btn" data-a="b"></button>
+        <button type="button" class="assignee-btn active" data-a="together">ふたり</button>
+      </div>
+      <div class="row-2">
+        <div>
+          <label class="field-label">期限（任意）</label>
+          <input type="date" id="newDue">
+        </div>
+      </div>
+      <label class="field-label">メモ（任意）</label>
+      <textarea id="newNote" placeholder="住所や口座番号など個人情報は書かないでください"></textarea>
+      <div class="form-actions">
+        <button class="btn" id="cancelAdd">キャンセル</button>
+        <button class="btn primary" id="saveAdd" disabled>追加する</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="listArea"></div>
+
+  <footer>
+    <span><span class="sync-dot" id="syncDot"></span><span id="syncText">読み込み中…</span></span>
+    <button class="refresh-btn" id="refreshBtn">今すぐ更新</button>
+  </footer>
+</div>
+
+<div class="overlay" id="settingsOverlay">
+  <div class="modal">
+    <h2>共有設定</h2>
+    <label>Firebaseの設定（firebaseConfig をそのまま貼り付け）</label>
+    <textarea id="fbConfig" rows="7" style="width:100%;font-family:monospace;font-size:12px;border:1px solid var(--line);padding:8px;margin-bottom:8px;" placeholder='{
+  apiKey: "...",
+  authDomain: "...",
+  projectId: "...",
+  storageBucket: "...",
+  messagingSenderId: "...",
+  appId: "..."
+}'></textarea>
+    <div style="text-align:right;margin-bottom:16px;">
+      <button type="button" class="btn" id="clearFbConfig" style="font-size:12px;padding:5px 12px;">この欄をクリア</button>
+    </div>
+    <label>ひとり目の名前</label>
+    <input type="text" id="nameA" placeholder="例）萌香">
+    <label>ふたり目の名前</label>
+    <input type="text" id="nameB" placeholder="例）彼">
+    <div style="border-top:1px solid var(--line);margin-top:16px;padding-top:14px;">
+      <button type="button" class="btn" id="resetAllBtn" style="width:100%;color:var(--danger);border-color:var(--danger);">すべてのタスクを未完了に戻す</button>
+    </div>
+    <p class="note-text">
+      この設定情報を知っている人は誰でもデータを見たり編集したりできます。第三者に共有されないようご注意ください。住所・口座番号・予約番号などはメモ欄に書かないことをおすすめします。<br><br>
+      ほぼ同時に同じタスクを編集した場合は、後から保存した内容が優先されます。
+    </p>
+    <div class="form-actions">
+      <button class="btn" id="closeSettings">閉じる</button>
+      <button class="btn primary" id="saveSettings">保存する</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const FB_CONFIG_KEY = 'wedding_fb_config';
+function safeGetConfig(){
+  try{
+    const raw = localStorage.getItem(FB_CONFIG_KEY);
+    return raw ? JSON.parse(raw) : null;
+  }catch(e){ return null; }
+}
+function safeSetConfig(obj){
+  try{ localStorage.setItem(FB_CONFIG_KEY, JSON.stringify(obj)); }catch(e){ /* ignore in sandboxed preview */ }
+}
+// 埋め込み済みの共有設定（このファイルを開くだけで使えるようにするため）
+const DEFAULT_FB_CONFIG = {
+  apiKey: "AIzaSyDcJT3VMWoZN3DoPoP6QihA6R8qsYKggtU",
+  authDomain: "wd-schedule.firebaseapp.com",
+  projectId: "wd-schedule",
+  storageBucket: "wd-schedule.firebasestorage.app",
+  messagingSenderId: "715246006010",
+  appId: "1:715246006010:web:280dd30216c3247d72a343"
+};
+let fbConfigObj = safeGetConfig() || DEFAULT_FB_CONFIG;
+let db = null;
+let docRef = null;
+let unsubscribe = null;
+
+function initFirebase(){
+  if(!fbConfigObj) return false;
+  try{
+    if(!firebase.apps || firebase.apps.length === 0){
+      firebase.initializeApp(fbConfigObj);
+    }
+    db = firebase.firestore();
+    docRef = db.collection('wedding').doc('data');
+    return true;
+  }catch(e){
+    setSyncStatus('初期化に失敗：' + (e && e.message ? e.message : '不明なエラー'));
+    return false;
+  }
+}
+
+function extractConfigObject(raw){
+  const start = raw.indexOf('{');
+  if(start === -1) throw new Error('中括弧 { が見つかりません');
+  let depth = 0, end = -1;
+  for(let i = start; i < raw.length; i++){
+    if(raw[i] === '{') depth++;
+    else if(raw[i] === '}'){
+      depth--;
+      if(depth === 0){ end = i; break; }
+    }
+  }
+  if(end === -1) throw new Error('閉じ中括弧 } が見つかりません');
+  const objText = raw.slice(start, end + 1);
+  return new Function('return (' + objText + ')')();
+}
+
+let state = {
+  names: { a: '私', b: '彼' },
+  tasks: []
+};
+let lastSavedString = null;
+let currentAssignee = 'together';
+let editingId = null;
+let wasAllDone = false;
+let hasRenderedOnce = false;
+let saving = false;
+let seedAttempted = false;
+
+function getDefaultTasks(){
+  // assignee: 'a' | 'b' (単独タスク・チェック1つ) | 'together' (ふたりで一緒に・チェック1つ)
+  const mk = (title, assignee, due, note) => ({
+    id: 'task_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+    title, assignee, due: due || null,
+    noteA: note || null, noteB: note || null,
+    doneA: false, doneB: false,
+    createdAt: Date.now()
+  });
+  return [
+    mk('自分の親に結婚の報告をする', 'a', '2026-09-30', null),
+    mk('彼の親に結婚の報告をする', 'b', '2026-09-30', null),
+    mk('両家顔合わせの日程を相談する', 'together', '2026-09-30', null),
+    mk('自分の親への正式な挨拶をする', 'a', '2026-10-15', null),
+    mk('彼の親への正式な挨拶をする', 'b', '2026-10-15', null),
+    mk('結婚指輪を見始める', 'together', '2026-10-31', '試着・ブランド比較'),
+    mk('両家顔合わせの日程・お店を決定する', 'together', '2026-10-31', null),
+    mk('結婚式をするかどうかを決める', 'together', '2026-11-30', '「する」場合は準備は2027年でOK'),
+    mk('両家顔合わせを行う', 'together', '2026-11-15', null),
+    mk('結婚指輪を決定・注文する', 'together', '2026-11-15', '12/12に間に合う納期か要確認'),
+    mk('名字をどちらにするか決める', 'together', '2026-11-30', null),
+    mk('婚姻届の準備をする', 'together', '2026-11-30', '証人2名・本籍・記入項目を確認'),
+    mk('自分の会社に結婚を報告する', 'a', '2026-11-30', '入籍日を伝える'),
+    mk('彼の会社に結婚を報告する', 'b', '2026-11-30', '入籍日を伝える'),
+    mk('結婚指輪を受け取る', 'together', '2026-12-10', null),
+    mk('婚姻届の最終確認をする', 'together', '2026-12-11', '不備チェック・土曜受付の可否を役所に確認'),
+    mk('婚姻届を提出する（入籍）', 'together', '2026-12-12', null),
+    mk('住所変更・免許証・銀行などの名義変更をする', 'together', null, '入籍後、順番に処理でOK')
+  ];
+}
+
+// backward compatibility: older saved tasks may use `both` instead of `together`,
+// a single `done` field instead of doneA/doneB, or a single `note` instead of noteA/noteB
+function normalizeTask(t){
+  if(t.assignee === 'both') t.assignee = 'together';
+  if(t.doneA === undefined || t.doneB === undefined){
+    const legacy = !!t.done;
+    t.doneA = legacy;
+    t.doneB = legacy;
+  }
+  if(t.noteA === undefined && t.noteB === undefined){
+    t.noteA = t.note || null;
+    t.noteB = t.note || null;
+  }
+  return t;
+}
+
+function isTaskDone(t){
+  return !!t.doneA;
+}
+
+function ringSVG(kind){
+  // kind: 'a' | 'b' | 'together'
+  const wine = '#7A2E38', sage = '#5F6E4F';
+  if(kind === 'together'){
+    return `<svg width="26" height="14" viewBox="0 0 26 14">
+      <circle cx="9" cy="7" r="5.5" fill="none" stroke="${wine}" stroke-width="2"/>
+      <circle cx="17" cy="7" r="5.5" fill="none" stroke="${sage}" stroke-width="2"/>
+    </svg>`;
+  }
+  const color = kind === 'a' ? wine : sage;
+  return `<svg width="15" height="14" viewBox="0 0 15 14">
+    <circle cx="7.5" cy="7" r="5.5" fill="none" stroke="${color}" stroke-width="2"/>
+  </svg>`;
+}
+
+function escapeHTML(s){
+  return (s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function formatDue(dateStr){
+  if(!dateStr) return '';
+  const d = new Date(dateStr + 'T00:00:00');
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const label = `${d.getMonth()+1}/${d.getDate()}`;
+  const overdue = d < today;
+  return { label, overdue };
+}
+
+function triggerCelebration(){
+  const overlay = document.createElement('div');
+  overlay.className = 'celebrate-overlay';
+  const colors = ['#7A2E38', '#5F6E4F', '#B8894A'];
+  for(let i = 0; i < 30; i++){
+    const piece = document.createElement('div');
+    piece.className = 'confetti';
+    piece.style.left = (Math.random() * 100) + '%';
+    piece.style.background = colors[i % colors.length];
+    piece.style.animationDelay = (Math.random() * 0.6) + 's';
+    piece.style.animationDuration = (2.2 + Math.random() * 1.2) + 's';
+    overlay.appendChild(piece);
+  }
+
+  const msg = document.createElement('div');
+  msg.className = 'celebrate-message';
+  msg.innerHTML = '<div class="big">すべて完了しました</div><div class="small">おつかれさまでした</div>';
+
+  document.body.appendChild(overlay);
+  document.body.appendChild(msg);
+
+  setTimeout(() => {
+    overlay.style.transition = 'opacity .6s';
+    msg.style.transition = 'opacity .6s';
+    overlay.style.opacity = '0';
+    msg.style.opacity = '0';
+    setTimeout(() => { overlay.remove(); msg.remove(); }, 650);
+  }, 3200);
+}
+
+function render(){
+  // assignee picker labels
+  document.querySelector('.assignee-btn[data-a="a"]').textContent = state.names.a;
+  document.querySelector('.assignee-btn[data-a="b"]').textContent = state.names.b;
+
+  const total = state.tasks.length;
+  const doneCount = state.tasks.filter(isTaskDone).length;
+  const pct = total ? Math.round((doneCount/total)*100) : 0;
+  document.getElementById('progressCount').textContent = `${doneCount} / ${total} 完了`;
+  document.getElementById('ribbonFill').style.width = pct + '%';
+
+  const allDone = total > 0 && doneCount === total;
+  if(!hasRenderedOnce){
+    hasRenderedOnce = true;
+  }else if(allDone && !wasAllDone){
+    triggerCelebration();
+  }
+  wasAllDone = allDone;
+
+  const listArea = document.getElementById('listArea');
+
+  if(total === 0){
+    listArea.innerHTML = `<div class="empty">まだタスクがありません。<br>上の「＋ タスクを追加」から、ふたりでやることを書き出してみましょう。</div>`;
+    return;
+  }
+
+  const pending = state.tasks.filter(t => !isTaskDone(t))
+    .sort((a,b) => {
+      if(a.due && b.due) return a.due.localeCompare(b.due);
+      if(a.due) return -1;
+      if(b.due) return 1;
+      return a.createdAt - b.createdAt;
+    });
+  const done = state.tasks.filter(isTaskDone).sort((a,b) => b.createdAt - a.createdAt);
+
+  function checkArea(t){
+    return `<div class="check" data-action="toggle" data-field="doneA"></div>`;
+  }
+
+  function taskRow(t){
+    const due = formatDue(t.due);
+    const taskDone = isTaskDone(t);
+    const assigneeLabel = t.assignee === 'together' ? null
+      : t.assignee === 'a' ? state.names.a : state.names.b;
+    const assigneeClass = t.assignee;
+
+    const notesHtml = `<textarea class="note-input" data-note-field="noteA" placeholder="メモを入力">${escapeHTML(t.noteA || '')}</textarea>`;
+
+    return `
+    <li class="task ${taskDone ? 'done' : ''}" data-id="${t.id}">
+      ${checkArea(t)}
+      <div class="task-body">
+        <div class="task-title">${escapeHTML(t.title)}</div>
+        <div class="task-meta">
+          ${t.assignee === 'together' ? `<span class="rings">${ringSVG(t.assignee)}</span><span class="assignee-name together">ふたり</span>` : ''}
+          ${assigneeLabel !== null ? `<span class="rings">${ringSVG(t.assignee)}</span><span class="assignee-name ${assigneeClass}">${escapeHTML(assigneeLabel)}</span>` : ''}
+          ${due ? `<span class="due ${due.overdue && !taskDone ? 'overdue' : ''}">〜${due.label}</span>` : ''}
+        </div>
+        ${notesHtml}
+      </div>
+      <div class="task-actions">
+        <button class="edit-btn" data-action="edit" aria-label="編集">✎</button>
+        <button class="del" data-action="delete" aria-label="削除">×</button>
+      </div>
+    </li>`;
+  }
+
+  let html = '';
+  if(pending.length){
+    html += `<p class="section-label">未完了（${pending.length}）</p><ul class="tasks">${pending.map(taskRow).join('')}</ul>`;
+  }
+  if(done.length){
+    html += `<details class="done-group"><summary>完了済み（${done.length}）</summary><ul class="tasks">${done.map(taskRow).join('')}</ul></details>`;
+  }
+  listArea.innerHTML = html;
+
+  listArea.querySelectorAll('.task').forEach(el => {
+    const id = el.getAttribute('data-id');
+    const singleCheck = el.querySelector('[data-action="toggle"]');
+    if(singleCheck){
+      singleCheck.addEventListener('click', () => toggleField(id, singleCheck.getAttribute('data-field')));
+    }
+    el.querySelectorAll('.dual-check input[type="checkbox"]').forEach(cb => {
+      cb.addEventListener('change', () => toggleField(id, cb.getAttribute('data-field')));
+    });
+    el.querySelectorAll('.note-input').forEach(ta => {
+      ta.addEventListener('change', () => {
+        const t = state.tasks.find(x => x.id === id);
+        if(!t) return;
+        t[ta.getAttribute('data-note-field')] = ta.value.trim() || null;
+        saveToStorage();
+      });
+    });
+    el.querySelector('[data-action="delete"]').addEventListener('click', () => deleteTask(id));
+    el.querySelector('[data-action="edit"]').addEventListener('click', () => openEditForm(id));
+  });
+}
+
+function setSyncStatus(text, isSaving){
+  document.getElementById('syncText').textContent = text;
+  document.getElementById('syncDot').classList.toggle('saving', !!isSaving);
+}
+
+function timeNow(){
+  const now = new Date();
+  return now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+}
+
+function startListening(){
+  if(!docRef){
+    setSyncStatus('共有設定からFirebaseの設定を登録してください');
+    return;
+  }
+  if(unsubscribe) unsubscribe();
+  unsubscribe = docRef.onSnapshot((snap) => {
+    if(!snap.exists){
+      if(!seedAttempted){
+        seedAttempted = true;
+        state.tasks = getDefaultTasks();
+        render();
+        saveToStorage();
+      }
+      setSyncStatus('同期済み ' + timeNow());
+      return;
+    }
+    const parsed = snap.data();
+    const remoteString = JSON.stringify(parsed);
+    if(remoteString !== lastSavedString){
+      state = {
+        names: parsed.names || { a: '私', b: '彼' },
+        tasks: (parsed.tasks || []).map(normalizeTask)
+      };
+      lastSavedString = remoteString;
+      render();
+    }
+    setSyncStatus('同期済み ' + timeNow());
+  }, (err) => {
+    setSyncStatus('取得に失敗：' + (err && err.message ? err.message : '不明なエラー'));
+  });
+}
+
+async function saveToStorage(){
+  if(!docRef){
+    setSyncStatus('共有設定からFirebaseの設定を登録してください');
+    return;
+  }
+  saving = true;
+  setSyncStatus('保存中…', true);
+  try{
+    const payload = JSON.stringify(state);
+    await docRef.set(state);
+    lastSavedString = payload;
+    setSyncStatus('同期済み ' + timeNow());
+  }catch(e){
+    setSyncStatus('保存に失敗：' + (e && e.message ? e.message : '不明なエラー'));
+  }
+  saving = false;
+}
+
+function toggleField(id, field){
+  const t = state.tasks.find(t => t.id === id);
+  if(!t || !field) return;
+  t[field] = !t[field];
+  render();
+  saveToStorage();
+}
+
+function deleteTask(id){
+  state.tasks = state.tasks.filter(t => t.id !== id);
+  render();
+  saveToStorage();
+}
+
+function addTask(){
+  const title = document.getElementById('newTitle').value.trim();
+  if(!title) return;
+  const due = document.getElementById('newDue').value;
+  const note = document.getElementById('newNote').value.trim() || null;
+
+  if(editingId){
+    const t = state.tasks.find(x => x.id === editingId);
+    if(t){
+      t.title = title;
+      t.assignee = currentAssignee;
+      t.due = due || null;
+      t.noteA = note;
+      t.noteB = note;
+    }
+  }else{
+    state.tasks.push({
+      id: 'task_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+      title,
+      assignee: currentAssignee,
+      due: due || null,
+      noteA: note, noteB: note,
+      doneA: false,
+      doneB: false,
+      createdAt: Date.now()
+    });
+  }
+  closeAddForm();
+  render();
+  saveToStorage();
+}
+
+function closeAddForm(){
+  document.getElementById('addForm').classList.remove('open');
+  document.getElementById('newTitle').value = '';
+  document.getElementById('newDue').value = '';
+  document.getElementById('newNote').value = '';
+  currentAssignee = 'together';
+  document.querySelectorAll('.assignee-btn').forEach(b => b.classList.toggle('active', b.dataset.a === 'together'));
+  document.getElementById('saveAdd').disabled = true;
+  editingId = null;
+  document.getElementById('formModeLabel').classList.remove('active');
+  document.getElementById('saveAdd').textContent = '追加する';
+}
+
+function openEditForm(id){
+  const t = state.tasks.find(x => x.id === id);
+  if(!t) return;
+  editingId = id;
+  currentAssignee = t.assignee;
+  document.getElementById('newTitle').value = t.title;
+  document.getElementById('newDue').value = t.due || '';
+  document.getElementById('newNote').value = t.noteA || '';
+  document.querySelectorAll('.assignee-btn').forEach(b => b.classList.toggle('active', b.dataset.a === t.assignee));
+  document.getElementById('formModeLabel').classList.add('active');
+  document.getElementById('saveAdd').textContent = '更新する';
+  document.getElementById('saveAdd').disabled = false;
+  document.getElementById('addForm').classList.add('open');
+  document.getElementById('newTitle').focus();
+}
+
+// wire up static UI
+document.getElementById('addTrigger').addEventListener('click', () => {
+  document.getElementById('addForm').classList.add('open');
+  document.getElementById('newTitle').focus();
+});
+document.getElementById('cancelAdd').addEventListener('click', closeAddForm);
+document.getElementById('newTitle').addEventListener('input', (e) => {
+  document.getElementById('saveAdd').disabled = e.target.value.trim().length === 0;
+});
+document.getElementById('saveAdd').addEventListener('click', addTask);
+document.getElementById('assigneePicker').addEventListener('click', (e) => {
+  const btn = e.target.closest('.assignee-btn');
+  if(!btn) return;
+  currentAssignee = btn.dataset.a;
+  document.querySelectorAll('.assignee-btn').forEach(b => b.classList.toggle('active', b === btn));
+});
+document.getElementById('refreshBtn').addEventListener('click', () => {
+  setSyncStatus('同期済み ' + timeNow());
+});
+
+document.getElementById('openSettings').addEventListener('click', () => {
+  document.getElementById('fbConfig').value = fbConfigObj ? JSON.stringify(fbConfigObj, null, 2) : '';
+  document.getElementById('nameA').value = state.names.a;
+  document.getElementById('nameB').value = state.names.b;
+  document.getElementById('settingsOverlay').classList.add('open');
+});
+document.getElementById('closeSettings').addEventListener('click', () => {
+  document.getElementById('settingsOverlay').classList.remove('open');
+});
+document.getElementById('resetAllBtn').addEventListener('click', () => {
+  if(!confirm('すべてのタスクを未完了に戻します。よろしいですか？')) return;
+  state.tasks.forEach(t => { t.doneA = false; t.doneB = false; });
+  wasAllDone = false;
+  document.getElementById('settingsOverlay').classList.remove('open');
+  render();
+  saveToStorage();
+});
+document.getElementById('clearFbConfig').addEventListener('click', () => {
+  const field = document.getElementById('fbConfig');
+  field.value = '';
+  field.focus();
+});
+document.getElementById('saveSettings').addEventListener('click', () => {
+  const raw = document.getElementById('fbConfig').value.trim();
+  const a = document.getElementById('nameA').value.trim();
+  const b = document.getElementById('nameB').value.trim();
+  state.names = { a: a || '私', b: b || '彼' };
+
+  let configChanged = false;
+  if(raw){
+    try{
+      const parsedConfig = extractConfigObject(raw);
+      if(!parsedConfig || !parsedConfig.projectId){
+        setSyncStatus('Firebaseの設定を確認してください（projectIdが見つかりません）');
+        return;
+      }
+      configChanged = JSON.stringify(parsedConfig) !== JSON.stringify(fbConfigObj);
+      fbConfigObj = parsedConfig;
+      safeSetConfig(fbConfigObj);
+    }catch(e){
+      setSyncStatus('Firebaseの設定を貼り付ける形式が正しくありません：' + (e && e.message ? e.message : ''));
+      return;
+    }
+  }
+
+  document.getElementById('settingsOverlay').classList.remove('open');
+  render();
+
+  if(configChanged || !docRef){
+    lastSavedString = null;
+    seedAttempted = false;
+    if(initFirebase()) startListening();
+  }else{
+    saveToStorage();
+  }
+});
+
+// init
+(function init(){
+  render();
+  if(!fbConfigObj){
+    setSyncStatus('未設定：右上の⚙からFirebaseの設定を登録してください');
+  }else if(initFirebase()){
+    startListening();
+  }
+})();
+</script>
+</body>
+</html>

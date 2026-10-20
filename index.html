@@ -274,6 +274,12 @@
   .assignee-name.together{ color:var(--gold); }
   .assignee-name.each{ color:var(--ink); }
   .due{ white-space:nowrap; }
+  .cat-chip{ font-size:10.5px; padding:1px 8px; border-radius:99px; border:1px solid currentColor; white-space:nowrap; line-height:1.6; }
+  .cat-chip.kaogoshi{ color:var(--gold); }
+  .cat-chip.nyuseki{ color:var(--wine); }
+  .filter-bar{ display:flex; gap:8px; margin:18px 0 6px; flex-wrap:wrap; }
+  .filter-btn{ font-family:inherit; font-size:12.5px; padding:6px 14px; border-radius:99px; border:1px solid var(--line, #ddd); background:transparent; color:var(--ink); cursor:pointer; }
+  .filter-btn.active{ background:var(--ink); color:#fff; border-color:var(--ink); }
   .due.overdue{ color:var(--danger); }
   .note{
     font-size:12.5px;
@@ -377,6 +383,60 @@
     accent-color:var(--wine);
     cursor:pointer;
   }
+  .countdown{
+    display:flex;
+    margin: 2px 0 24px;
+  }
+  .cd-item{ flex:1; min-width:0; }
+  .cd-item + .cd-item{
+    border-left:1px solid var(--line);
+    padding-left:16px;
+  }
+  .cd-label{
+    font-size:11.5px;
+    color:var(--muted);
+    margin-bottom:2px;
+  }
+  .cd-main{ display:flex; align-items:baseline; gap:4px; }
+  .cd-num{
+    font-family:'Zen Kaku Gothic New', sans-serif;
+    font-weight:700;
+    font-size:32px;
+    line-height:1.1;
+    color:var(--wine);
+  }
+  .cd-unit{ font-size:12px; color:var(--muted); }
+  .cd-date{ font-size:11.5px; color:var(--muted); margin-left:6px; }
+
+  .today-wrap{ margin: 0 0 26px; }
+  .today-empty{
+    font-size:13px;
+    color:var(--muted);
+    padding:10px 2px;
+  }
+  .today-more{
+    font-size:11.5px;
+    color:var(--muted);
+    padding:8px 2px 0;
+  }
+  .today-due{ font-size:11.5px; color:var(--muted); margin-top:3px; }
+  .today-due.overdue{ color:var(--danger); }
+
+  .timeline-summary{
+    cursor:pointer;
+    list-style:none;
+    margin-bottom:12px;
+  }
+  .timeline-summary::-webkit-details-marker{ display:none; }
+  .timeline-summary::before{ content:'▾ '; }
+  details.timeline-wrap:not([open]) .timeline-summary::before{ content:'▸ '; }
+  .tl-item.today .tl-icon{ background:#F3E9DB; }
+  .tl-item.today .tl-month::after{
+    content:'　いまここ';
+    font-size:11px;
+    color:var(--gold);
+  }
+
   .timeline-wrap{ margin: 4px 0 26px; }
   .timeline{
     border-left: 2px solid var(--line);
@@ -561,6 +621,90 @@
     60%{ opacity:1; transform:translate(-50%,-50%) scale(1.04); }
     100%{ opacity:1; transform:translate(-50%,-50%) scale(1); }
   }
+
+  /* ===== refined look ===== */
+  :root{
+    --cream:#F6F4F0; --paper:#FFFFFF; --ink:#1E1C1A; --muted:#8C8782; --line:#E9E5DE;
+    --wine:#6E2B36; --wine-soft:#F0E4E4; --sage:#5C6B4E; --sage-soft:#E8EDE0; --gold:#A9814A;
+  }
+  .app{ padding:34px 22px 56px; }
+  header{ margin-bottom:30px; align-items:center; }
+  h1{ font-size:15px; font-weight:700; letter-spacing:.18em; margin:0; color:var(--ink); }
+  .h1-icon{ width:20px; height:20px; }
+  .section-label{ font-size:10.5px; font-weight:700; letter-spacing:.2em; color:var(--muted); margin:0 0 12px 2px; }
+  .month-label{ display:flex; align-items:center; gap:8px; margin-top:26px; }
+  .month-label span{ font-weight:500; letter-spacing:0; color:var(--muted); background:var(--line); border-radius:99px; padding:0 8px; font-size:10.5px; line-height:1.7; }
+
+  .countdown{ margin:0 0 36px; }
+  .cd-label{ font-size:10.5px; letter-spacing:.16em; color:var(--muted); margin-bottom:6px; }
+  .cd-num{ font-size:52px; font-weight:500; letter-spacing:-.02em; color:var(--ink); line-height:1; }
+  .cd-unit{ font-size:12px; margin-left:2px; }
+  .cd-date{ font-size:11px; }
+  .cd-item + .cd-item{ border-left:1px solid var(--line); padding-left:22px; }
+
+  .today-wrap{ margin:0 0 22px; }
+  .today-wrap ul.tasks{ background:var(--paper); border-radius:18px; padding:4px 18px; box-shadow:0 1px 2px rgba(30,28,26,.04), 0 8px 24px rgba(30,28,26,.05); }
+  .today-wrap .task:last-of-type{ border-bottom:none; }
+  .today-wrap .task{ padding:16px 0; }
+  .today-wrap .task-title{ font-size:15.5px; font-weight:500; }
+  .today-more{ padding:12px 0 14px; border-top:1px solid var(--line); }
+  .today-wrap .task:nth-last-child(2){ border-bottom:none; }
+
+  .check{ width:22px; height:22px; border:1.5px solid #CFC8BE; }
+  .task.done .check{ background:var(--ink); border-color:var(--ink); }
+  .task.done .check::after{ left:6.5px; top:3px; }
+  .task{ padding:15px 0; }
+  .task-title{ font-size:14.5px; }
+  .task-meta{ flex-wrap:wrap; gap:8px; margin-top:6px; }
+  .cat-chip{ border-color:transparent; background:var(--cream); color:var(--muted)!important; }
+  .cat-chip.kaogoshi{ background:#F4EBDD; color:var(--gold)!important; }
+  .cat-chip.nyuseki{ background:var(--wine-soft); color:var(--wine)!important; }
+  .memo-mark{ font-size:10.5px; color:var(--muted); border:1px solid var(--line); border-radius:99px; padding:0 7px; line-height:1.6; }
+
+  .note-wrap{ display:none; }
+  .task.expanded .note-wrap{ display:block; }
+  .task-body{ cursor:pointer; }
+  .note-input{ border:none; background:var(--paper); border-radius:10px; padding:10px 12px; margin-top:10px; font-size:13px; line-height:1.6; min-height:64px; border:1px solid var(--line); }
+  .note-input:focus{ border-color:var(--ink); }
+  .task-actions{ flex-direction:row; opacity:.55; }
+
+  .progress-wrap{ margin:0 0 22px; }
+  .ribbon-track, .ribbon-fill{ clip-path:none; border-radius:99px; height:4px; }
+  .ribbon-track{ background:var(--line); }
+  .ribbon-fill{ background:var(--ink); }
+  .progress-count{ font-family:inherit; font-size:12px; color:var(--ink); }
+  .progress-label{ font-size:10.5px; letter-spacing:.2em; }
+
+  .add-bar{ border:1px dashed #D5CFC6; background:transparent; border-radius:14px; padding:13px 16px; margin-bottom:18px; }
+  .add-bar:has(.add-form.open){ background:var(--paper); border-style:solid; border-color:var(--line); }
+  .add-trigger{ font-size:13px; }
+  .add-trigger .plus{ color:var(--ink); }
+  .add-form input[type=text], .add-form input[type=date], .add-form textarea{ font-size:15px; }
+  .assignee-btn, .btn{ border-radius:99px; }
+  .btn.primary{ background:var(--ink); border-color:var(--ink); }
+  .overlay .modal, .celebrate-message{ border-radius:18px; }
+
+  details.all-wrap, details.timeline-wrap{ background:var(--paper); border-radius:18px; padding:0 18px; margin:0 0 14px; box-shadow:0 1px 2px rgba(30,28,26,.04); }
+  details.all-wrap[open], details.timeline-wrap[open]{ padding-bottom:18px; }
+  .all-summary, .timeline-summary{ cursor:pointer; list-style:none; padding:17px 0; font-size:13.5px; font-weight:500; letter-spacing:.04em; margin:0; color:var(--ink); display:flex; justify-content:space-between; align-items:center; }
+  .all-summary::-webkit-details-marker{ display:none; }
+  .all-summary::after, .timeline-summary::after{ content:'+'; font-size:18px; font-weight:400; color:var(--muted); }
+  details[open] > .all-summary::after, details[open] > .timeline-summary::after{ content:'−'; }
+  .timeline-summary::before, details.timeline-wrap:not([open]) .timeline-summary::before{ content:none; }
+  .timeline-summary{ font-size:13.5px; letter-spacing:.04em; }
+  .timeline-wrap .timeline{ margin-top:8px; }
+  .filter-bar{ margin:0 0 4px; }
+  .filter-btn{ border-color:transparent; background:var(--cream); font-size:12px; }
+  .filter-btn.active{ background:var(--ink); }
+  .tl-month{ color:var(--ink); letter-spacing:.06em; }
+  .tl-icon{ border-color:var(--ink); }
+  .tl-icon svg *{ stroke:var(--ink); }
+  footer{ margin-top:34px; }
+  header{ gap:10px; }
+  header > div:first-child{ flex:1; min-width:0; }
+  .viewer-switch{ display:flex; background:var(--line); border-radius:99px; padding:3px; flex-shrink:0; }
+  .viewer-switch button{ border:none; background:transparent; font-family:inherit; font-size:11.5px; padding:5px 11px; border-radius:99px; color:var(--muted); cursor:pointer; white-space:nowrap; }
+  .viewer-switch button.active{ background:var(--ink); color:#fff; }
 </style>
 </head>
 <body>
@@ -578,7 +722,11 @@
         </svg>
         スケジュール確認
       </h1>
-      <p class="sub">同じ画面を開いた二人の間で、チェックが自動的に共有されます</p>
+    </div>
+    <div class="viewer-switch" id="viewerSwitch">
+      <button type="button" data-v="a"></button>
+      <button type="button" data-v="b"></button>
+      <button type="button" data-v="">すべて</button>
     </div>
     <button class="gear" id="openSettings" title="担当者名を設定" aria-label="設定">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
@@ -588,65 +736,13 @@
     </button>
   </header>
 
-  <div class="timeline-wrap">
-    <p class="section-label">スケジュールの流れ</p>
-    <div class="timeline">
-      <div class="tl-item">
-        <div class="tl-icon">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7A2E38" stroke-width="1.8">
-            <path d="M4 4h16v12H8l-4 4V4z"></path>
-          </svg>
-        </div>
-        <div class="tl-month">9月</div>
-        <div class="tl-title">報告・段取り</div>
-        <div class="tl-desc">両親への報告／挨拶の日程を相談／顔合わせの候補日を出す／指輪探しを始める</div>
-      </div>
-      <div class="tl-item">
-        <div class="tl-icon">
-          <svg width="15" height="9" viewBox="0 0 26 14">
-            <circle cx="9" cy="7" r="5.5" fill="none" stroke="#7A2E38" stroke-width="1.8"/>
-            <circle cx="17" cy="7" r="5.5" fill="none" stroke="#5F6E4F" stroke-width="1.8"/>
-          </svg>
-        </div>
-        <div class="tl-month">10月</div>
-        <div class="tl-title">顔合わせ・指輪</div>
-        <div class="tl-desc">両家顔合わせの日程・お店を決定／指輪の試着・比較検討／式をするか方向性を決める</div>
-      </div>
-      <div class="tl-item">
-        <div class="tl-icon">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7A2E38" stroke-width="1.8">
-            <rect x="4" y="3" width="16" height="18" rx="1.5"></rect>
-            <path d="M8 9h8M8 13h8M8 17h5"></path>
-          </svg>
-        </div>
-        <div class="tl-month">11月</div>
-        <div class="tl-title">決定・準備</div>
-        <div class="tl-desc">両家顔合わせ実施／指輪を決定・注文／名字を決定／証人を決める／会社へ報告</div>
-      </div>
-      <div class="tl-item">
-        <div class="tl-icon">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7A2E38" stroke-width="1.8">
-            <circle cx="10.5" cy="10.5" r="6.5"></circle>
-            <path d="M20 20l-4.5-4.5"></path>
-            <path d="M7.5 10.5l2 2 3.5-4" stroke="#5F6E4F"></path>
-          </svg>
-        </div>
-        <div class="tl-month">12月前半</div>
-        <div class="tl-title">最終確認</div>
-        <div class="tl-desc">指輪受け取り／必要書類の最終チェック／休日受付の可否を確認</div>
-      </div>
-      <div class="tl-item">
-        <div class="tl-icon">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7A2E38" stroke-width="1.8">
-            <path d="M4 21V4l14 6.5L4 12"></path>
-          </svg>
-        </div>
-        <div class="tl-month">12/12（土）</div>
-        <div class="tl-title">提出日</div>
-        <div class="tl-desc">婚姻届を提出／その後、順番に会社・免許・銀行などの名義変更へ</div>
-      </div>
-    </div>
+  <div class="countdown" id="countdown"></div>
+
+  <div class="today-wrap">
+    <p class="section-label">今やること</p>
+    <ul class="tasks" id="todayList"></ul>
   </div>
+
 
   <div class="progress-wrap">
     <div class="progress-row">
@@ -673,6 +769,12 @@
         <button type="button" class="assignee-btn" data-a="b"></button>
         <button type="button" class="assignee-btn active" data-a="together">ふたり</button>
       </div>
+      <label class="field-label">タグ</label>
+      <div class="assignee-picker" id="catPicker">
+        <button type="button" class="assignee-btn active" data-c="">なし</button>
+        <button type="button" class="assignee-btn" data-c="kaogoshi">両家</button>
+        <button type="button" class="assignee-btn" data-c="nyuseki">入籍</button>
+      </div>
       <div class="row-2">
         <div>
           <label class="field-label">期限（任意）</label>
@@ -688,7 +790,71 @@
     </div>
   </div>
 
-  <div id="listArea"></div>
+  <details class="all-wrap" id="allWrap">
+    <summary class="all-summary" id="allSummary">すべてのタスク</summary>
+    <div class="filter-bar" id="filterBar"></div>
+    <div id="listArea"></div>
+  </details>
+
+  <details class="timeline-wrap">
+    <summary class="section-label timeline-summary">スケジュールの流れ</summary>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7A2E38" stroke-width="1.8">
+            <path d="M4 4h16v12H8l-4 4V4z"></path>
+          </svg>
+        </div>
+        <div class="tl-month">9月</div>
+        <div class="tl-title">報告・段取り</div>
+        <div class="tl-desc">両親への報告／挨拶の日程を相談／顔合わせの候補日を出す／指輪探しを始める</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-icon">
+          <svg width="15" height="9" viewBox="0 0 26 14">
+            <circle cx="9" cy="7" r="5.5" fill="none" stroke="#7A2E38" stroke-width="1.8"/>
+            <circle cx="17" cy="7" r="5.5" fill="none" stroke="#5F6E4F" stroke-width="1.8"/>
+          </svg>
+        </div>
+        <div class="tl-month">10月</div>
+        <div class="tl-title">挨拶・指輪</div>
+        <div class="tl-desc">それぞれの親へ挨拶／顔合わせのお店を予約／指輪の試着・比較検討／式をするか方向性を決める</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7A2E38" stroke-width="1.8">
+            <rect x="4" y="3" width="16" height="18" rx="1.5"></rect>
+            <path d="M8 9h8M8 13h8M8 17h5"></path>
+          </svg>
+        </div>
+        <div class="tl-month">11月</div>
+        <div class="tl-title">顔合わせ・決定</div>
+        <div class="tl-desc">11/10 両家顔合わせ／指輪を決定・注文／名字を決定／証人を決める／会社へ報告</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7A2E38" stroke-width="1.8">
+            <circle cx="10.5" cy="10.5" r="6.5"></circle>
+            <path d="M20 20l-4.5-4.5"></path>
+            <path d="M7.5 10.5l2 2 3.5-4" stroke="#5F6E4F"></path>
+          </svg>
+        </div>
+        <div class="tl-month">12月前半</div>
+        <div class="tl-title">最終確認</div>
+        <div class="tl-desc">指輪受け取り／必要書類の最終チェック／休日受付の可否を確認</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7A2E38" stroke-width="1.8">
+            <path d="M4 21V4l14 6.5L4 12"></path>
+          </svg>
+        </div>
+        <div class="tl-month">12/12（土）</div>
+        <div class="tl-title">提出日</div>
+        <div class="tl-desc">婚姻届を提出／その後、順番に会社・免許・銀行などの名義変更へ</div>
+      </div>
+    </div>
+  </details>
 
   <footer>
     <span><span class="sync-dot" id="syncDot"></span><span id="syncText">読み込み中…</span></span>
@@ -787,10 +953,139 @@ function extractConfigObject(raw){
 
 let state = {
   names: { a: '私', b: '彼' },
-  tasks: []
+  tasks: [],
+  migrations: []
 };
+
+// カウントダウンに出す大事な日
+const KEY_DATES = [
+  { label: '両家顔合わせ', date: '2026-11-10' },
+  { label: '入籍', date: '2026-12-12' }
+];
+
+// 既存データに一度だけ追加する「両家顔合わせ」準備タスク
+const EXTRA_TASKS_V1 = [
+  { id: 'seed_kg_1', title: '顔合わせのお店を確認・予約する', due: '2026-10-23', note: '個室・人数・予算・アレルギーの有無' },
+  { id: 'seed_kg_2', title: '両家へ日時・場所・集合時間を連絡する', due: '2026-10-26', note: 'お店の住所と地図も一緒に送る' },
+  { id: 'seed_kg_3', title: '費用の分担と当日の進行を決める', due: '2026-10-31', note: '乾杯・自己紹介の順番／集合写真のタイミング' },
+  { id: 'seed_kg_4', title: '当日の服装を決める', due: '2026-11-05', note: '両家で格を合わせたいときは親にも確認' },
+  { id: 'seed_kg_5', title: '手土産・記念品を準備する', due: '2026-11-07', note: '必要なら。両家で揃えるか相談' },
+  { id: 'seed_kg_6', title: '前日にお店・時間・交通を最終確認する', due: '2026-11-09', note: null },
+  { id: 'seed_kg_7', title: '婚姻届の証人をお願いする方を決めて相談する', due: '2026-11-10', note: '顔合わせの席で依頼するのも◎' }
+];
+
+
+const CAT_LABEL = { kaogoshi: '両家', nyuseki: '入籍' };
+// [id, title, assignee, due, cat, note]
+const EXTRA_TASKS_V2 = [
+  ['v2_01','ヘアメイクを予約する','a','2026-10-21','kaogoshi','11/10の時間・場所を伝えて予約'],
+  ['v2_02','ネイル・まつげ・まゆげの予約をする','a','2026-10-21','kaogoshi','11/7ごろに行ける日で'],
+  ['v2_03','美容院を予約する','a','2026-10-21','kaogoshi','11/4〜11/6ごろ'],
+  ['v2_04','11/10の勤務調整・休み申請をする','a','2026-10-21','kaogoshi',null],
+  ['v2_05','彼にしおりの素材（写真・メッセージ）を依頼する','a','2026-10-21','kaogoshi',null],
+  ['v2_06','家族の名前・読み方を確認する','together','2026-10-22','kaogoshi','しおりに載せるため'],
+  ['v2_07','お品書き・メニューをお店に確認する','together','2026-10-22','kaogoshi',null],
+  ['v2_08','両家のアレルギー・苦手な食材を確認する','together','2026-10-22','kaogoshi',null],
+  ['v2_09','遠方の家族の交通・宿泊を手配する','together','2026-10-22','kaogoshi','必要な場合のみ'],
+  ['v2_10','しおりの写真を選んで流し込む','together','2026-10-23','kaogoshi',null],
+  ['v2_11','靴・バッグ・小物を揃える','a','2026-10-25','kaogoshi',null],
+  ['v2_12','しおりの最終チェック（誤字・名前・日時）','together','2026-10-26','kaogoshi',null],
+  ['v2_13','しおりのPDFを書き出して注文・入稿する','together','2026-10-27','kaogoshi','受付確定の7日後に出荷'],
+  ['v2_14','入稿チェックの連絡に対応する','together','2026-10-28','kaogoshi',null],
+  ['v2_15','間に合わない場合のセルフ印刷を判断する','together','2026-10-30','kaogoshi',null],
+  ['v2_16','婚姻届を入手する','together','2026-10-29','nyuseki','役所でもらう／ダウンロードして印刷'],
+  ['v2_17','本籍地を確認する','together','2026-10-30','nyuseki','戸籍謄本が必要か役所に確認'],
+  ['v2_18','結婚指輪の注文状況を確認する','together','2026-10-31','nyuseki','12/12に間に合うか'],
+  ['v2_19','アクセサリー・ピアスを購入する','a','2026-10-31','kaogoshi',null],
+  ['v2_20','しおりの到着を確認する','together','2026-11-06','kaogoshi',null],
+  ['v2_21','持ち物を最終確認する（しおり・手土産・記念品・服）','together','2026-11-09','kaogoshi',null],
+  ['v2_22','集合写真を撮る','together','2026-11-10','kaogoshi',null],
+  ['v2_23','お礼の連絡と写真の共有をする','together','2026-11-12','kaogoshi',null],
+  ['v2_24','顔合わせの費用を精算する','together','2026-11-15','kaogoshi',null],
+  ['v2_25','婚姻届を下書き・清書する','together','2026-11-20','nyuseki','間違えたら訂正印か書き直し'],
+  ['v2_26','証人欄の記入を依頼・回収する','together','2026-11-30','nyuseki',null],
+  ['v2_27','勤務先の結婚後の手続き・必要書類を確認する','a','2026-11-30','nyuseki',null],
+  ['v2_28','勤務先の結婚後の手続き・必要書類を確認する','b','2026-11-30','nyuseki',null],
+  ['v2_29','12/12の休日受付の場所・時間を役所に確認する','together','2026-12-01','nyuseki',null],
+  ['v2_30','12/12の食事のお店を予約する','together','2026-12-01','nyuseki',null],
+  ['v2_31','婚姻届を役所で事前チェックしてもらう','together','2026-12-04','nyuseki',null],
+  ['v2_32','名字変更の変更先一覧を作る','together','2026-12-05','nyuseki','銀行・カード・携帯・保険・免許など'],
+  ['v2_33','12/12の持ち物を確認する','together','2026-12-11','nyuseki','婚姻届・本人確認書類・印鑑'],
+  ['v2_34','記念写真を撮る','together','2026-12-12','nyuseki',null],
+  ['v2_35','受理証明書をもらう','together','2026-12-12','nyuseki','希望する場合'],
+  ['v2_36','住民票・戸籍謄本を取得する','together','2026-12-14','nyuseki','役所系は12/25までに'],
+  ['v2_37','マイナンバーカードの券面を変更する','together','2026-12-18','nyuseki','名字が変わる方'],
+  ['v2_38','印鑑登録をし直す','together','2026-12-18','nyuseki','名字が変わる方'],
+  ['v2_39','運転免許証を変更する','together','2026-12-20','nyuseki','名字が変わる方'],
+  ['v2_40','友人・親戚・職場へ入籍の報告をする','together','2026-12-20','nyuseki',null],
+  ['v2_41','銀行・クレジットカードを変更する','together','2026-12-22','nyuseki','名字が変わる方'],
+  ['v2_42','携帯・保険・年金の名義を変更する','together','2026-12-25','nyuseki','名字が変わる方'],
+  ['v2_43','パスポートを変更する','together',null,'nyuseki','急がなくてOK'],
+  ['v2_44','ポイントカード・各種会員情報を変更する','together',null,'nyuseki','急がなくてOK']
+];
+function inferCat(t){
+  const n = t.title || '';
+  if(t.id && /^seed_kg_[1-6]$/.test(t.id)) return 'kaogoshi';
+  if(t.id === 'seed_kg_7') return 'nyuseki';
+  if(/顔合わせ|親に結婚の報告|親への正式な挨拶/.test(n)) return 'kaogoshi';
+  if(/婚姻届|名字|入籍|会社|指輪|住所変更|名義/.test(n)) return 'nyuseki';
+  return null;
+}
+
+function applyMigrations(){
+  if(!Array.isArray(state.migrations)) state.migrations = [];
+  let changed = false;
+  if(!state.migrations.includes('kaogoshi-2026-10')){
+    changed = applyV1() || changed;
+  }
+  if(!state.migrations.includes('todo-v2-2026-10')){
+    EXTRA_TASKS_V2.forEach(x => {
+      if(state.tasks.some(t => t.id === x[0])) return;
+      state.tasks.push({
+        id: x[0], title: x[1], assignee: x[2], due: x[3], cat: x[4],
+        noteA: x[5], noteB: x[5], doneA: false, doneB: false, createdAt: Date.now()
+      });
+    });
+    state.tasks.forEach(t => { if(!t.cat) t.cat = inferCat(t); });
+    state.migrations.push('todo-v2-2026-10');
+    changed = true;
+  }
+  return changed;
+}
+function applyV1(){
+  EXTRA_TASKS_V1.forEach(x => {
+    if(state.tasks.some(t => t.id === x.id)) return;
+    state.tasks.push({
+      id: x.id, title: x.title, assignee: 'together', due: x.due,
+      noteA: x.note || null, noteB: x.note || null,
+      doneA: false, doneB: false, createdAt: Date.now()
+    });
+  });
+  state.tasks.forEach(t => {
+    if(t.title === '両家顔合わせを行う' && t.due === '2026-11-15') t.due = '2026-11-10';
+  });
+  state.migrations.push('kaogoshi-2026-10');
+  return true;
+}
 let lastSavedString = null;
 let currentAssignee = 'together';
+let currentCat = '';
+let activeFilter = '';
+const expandedIds = new Set();
+let viewer = '';
+try{ viewer = localStorage.getItem('wedding_viewer') || ''; }catch(e){}
+function visibleTasks(){
+  if(!viewer) return state.tasks;
+  return state.tasks.filter(t => t.assignee === 'together' || t.assignee === viewer);
+}
+function renderViewerSwitch(){
+  document.querySelectorAll('#viewerSwitch button').forEach(b => {
+    const v = b.dataset.v;
+    if(v === 'a') b.textContent = state.names.a;
+    if(v === 'b') b.textContent = state.names.b;
+    b.classList.toggle('active', v === viewer);
+  });
+}
 let editingId = null;
 let wasAllDone = false;
 let hasRenderedOnce = false;
@@ -815,7 +1110,7 @@ function getDefaultTasks(){
     mk('結婚指輪を見始める', 'together', '2026-10-31', '試着・ブランド比較'),
     mk('両家顔合わせの日程・お店を決定する', 'together', '2026-10-31', null),
     mk('結婚式をするかどうかを決める', 'together', '2026-11-30', '「する」場合は準備は2027年でOK'),
-    mk('両家顔合わせを行う', 'together', '2026-11-15', null),
+    mk('両家顔合わせを行う', 'together', '2026-11-10', null),
     mk('結婚指輪を決定・注文する', 'together', '2026-11-15', '12/12に間に合う納期か要確認'),
     mk('名字をどちらにするか決める', 'together', '2026-11-30', null),
     mk('婚姻届の準備をする', 'together', '2026-11-30', '証人2名・本籍・記入項目を確認'),
@@ -877,6 +1172,86 @@ function formatDue(dateStr){
   return { label, overdue };
 }
 
+function daysUntil(dateStr){
+  const d = new Date(dateStr + 'T00:00:00');
+  const t = new Date();
+  t.setHours(0,0,0,0);
+  return Math.round((d - t) / 86400000);
+}
+
+function renderCountdown(){
+  const el = document.getElementById('countdown');
+  const items = KEY_DATES
+    .map(k => ({ ...k, n: daysUntil(k.date) }))
+    .filter(k => k.n >= 0);
+  el.innerHTML = items.map(k => {
+    const d = new Date(k.date + 'T00:00:00');
+    const dateLabel = `${d.getMonth()+1}/${d.getDate()}`;
+    const main = k.n === 0
+      ? `<span class="cd-num">今日</span>`
+      : `<span class="cd-num">${k.n}</span><span class="cd-unit">日</span>`;
+    return `<div class="cd-item">
+      <div class="cd-label">${escapeHTML(k.label)}まで</div>
+      <div class="cd-main">${main}<span class="cd-date">${dateLabel}</span></div>
+    </div>`;
+  }).join('');
+  el.style.display = items.length ? 'flex' : 'none';
+}
+
+function renderToday(){
+  const el = document.getElementById('todayList');
+  const pending = visibleTasks().filter(t => !isTaskDone(t)).sort((a,b) => {
+    if(a.due && b.due) return a.due.localeCompare(b.due);
+    if(a.due) return -1;
+    if(b.due) return 1;
+    return a.createdAt - b.createdAt;
+  });
+  if(!pending.length){
+    el.innerHTML = state.tasks.length
+      ? `<li class="today-empty">今やることはありません</li>`
+      : `<li class="today-empty">タスクを追加すると、ここに表示されます</li>`;
+    return;
+  }
+  const top = pending.slice(0, 3);
+  el.innerHTML = top.map(t => {
+    let dueHtml = '';
+    if(t.due){
+      const n = daysUntil(t.due);
+      const d = new Date(t.due + 'T00:00:00');
+      const dl = `${d.getMonth()+1}/${d.getDate()}`;
+      const text = n < 0 ? `${dl} ・ 期限を${-n}日過ぎています`
+        : n === 0 ? `${dl} ・ 今日まで`
+        : n === 1 ? `${dl} ・ 明日まで`
+        : `${dl} ・ あと${n}日`;
+      dueHtml = `<div class="today-due ${n < 0 ? 'overdue' : ''}">${text}</div>`;
+    }
+    return `<li class="task" data-id="${t.id}">
+      <div class="check" data-action="toggle" data-field="doneA"></div>
+      <div class="task-body">
+        <div class="task-title">${escapeHTML(t.title)}</div>
+        ${dueHtml}${t.cat ? `<span class="cat-chip ${t.cat}">${CAT_LABEL[t.cat]}</span>` : ''}
+      </div>
+    </li>`;
+  }).join('') + (pending.length > 3 ? `<li class="today-more">ほか ${pending.length - 3} 件</li>` : '');
+
+  el.querySelectorAll('.task').forEach(row => {
+    const id = row.getAttribute('data-id');
+    row.querySelector('.check').addEventListener('click', () => toggleField(id, 'doneA'));
+  });
+}
+
+function markTimeline(){
+  const now = new Date();
+  let stage = 0;
+  if(now >= new Date(2026, 11, 12)) stage = 4;
+  else if(now >= new Date(2026, 11, 1)) stage = 3;
+  else if(now >= new Date(2026, 10, 1)) stage = 2;
+  else if(now >= new Date(2026, 9, 1)) stage = 1;
+  document.querySelectorAll('.timeline .tl-item').forEach((el, i) => {
+    el.classList.toggle('today', i === stage);
+  });
+}
+
 function triggerCelebration(){
   const overlay = document.createElement('div');
   overlay.className = 'celebrate-overlay';
@@ -912,8 +1287,9 @@ function render(){
   document.querySelector('.assignee-btn[data-a="a"]').textContent = state.names.a;
   document.querySelector('.assignee-btn[data-a="b"]').textContent = state.names.b;
 
-  const total = state.tasks.length;
-  const doneCount = state.tasks.filter(isTaskDone).length;
+  renderViewerSwitch();
+  const total = visibleTasks().length;
+  const doneCount = visibleTasks().filter(isTaskDone).length;
   const pct = total ? Math.round((doneCount/total)*100) : 0;
   document.getElementById('progressCount').textContent = `${doneCount} / ${total} 完了`;
   document.getElementById('ribbonFill').style.width = pct + '%';
@@ -926,6 +1302,11 @@ function render(){
   }
   wasAllDone = allDone;
 
+  renderCountdown();
+  renderToday();
+  markTimeline();
+  document.getElementById('allSummary').textContent = `すべてのタスク（未完了 ${visibleTasks().filter(t => !isTaskDone(t)).length}）`;
+
   const listArea = document.getElementById('listArea');
 
   if(total === 0){
@@ -933,14 +1314,21 @@ function render(){
     return;
   }
 
-  const pending = state.tasks.filter(t => !isTaskDone(t))
+  const fb = document.getElementById('filterBar');
+  const cnt = c => visibleTasks().filter(t => !isTaskDone(t) && (!c || t.cat === c)).length;
+  fb.innerHTML = [['', 'すべて'], ['kaogoshi', '両家'], ['nyuseki', '入籍']].map(([c, l]) =>
+    `<button type="button" class="filter-btn ${activeFilter === c ? 'active' : ''}" data-f="${c}">${l}（${cnt(c)}）</button>`).join('');
+  fb.querySelectorAll('.filter-btn').forEach(b => b.addEventListener('click', () => { activeFilter = b.dataset.f; render(); }));
+  const inF = t => !activeFilter || t.cat === activeFilter;
+
+  const pending = visibleTasks().filter(t => !isTaskDone(t) && inF(t))
     .sort((a,b) => {
       if(a.due && b.due) return a.due.localeCompare(b.due);
       if(a.due) return -1;
       if(b.due) return 1;
       return a.createdAt - b.createdAt;
     });
-  const done = state.tasks.filter(isTaskDone).sort((a,b) => b.createdAt - a.createdAt);
+  const done = visibleTasks().filter(t => isTaskDone(t) && inF(t)).sort((a,b) => b.createdAt - a.createdAt);
 
   function checkArea(t){
     return `<div class="check" data-action="toggle" data-field="doneA"></div>`;
@@ -953,17 +1341,19 @@ function render(){
       : t.assignee === 'a' ? state.names.a : state.names.b;
     const assigneeClass = t.assignee;
 
-    const notesHtml = `<textarea class="note-input" data-note-field="noteA" placeholder="メモを入力">${escapeHTML(t.noteA || '')}</textarea>`;
+    const notesHtml = `<div class="note-wrap"><textarea class="note-input" data-note-field="noteA" placeholder="メモを入力">${escapeHTML(t.noteA || '')}</textarea></div>`;
 
     return `
-    <li class="task ${taskDone ? 'done' : ''}" data-id="${t.id}">
+    <li class="task ${taskDone ? 'done' : ''} ${expandedIds.has(t.id) ? 'expanded' : ''}" data-id="${t.id}">
       ${checkArea(t)}
       <div class="task-body">
         <div class="task-title">${escapeHTML(t.title)}</div>
         <div class="task-meta">
           ${t.assignee === 'together' ? `<span class="rings">${ringSVG(t.assignee)}</span><span class="assignee-name together">ふたり</span>` : ''}
           ${assigneeLabel !== null ? `<span class="rings">${ringSVG(t.assignee)}</span><span class="assignee-name ${assigneeClass}">${escapeHTML(assigneeLabel)}</span>` : ''}
+          ${t.cat ? `<span class="cat-chip ${t.cat}">${CAT_LABEL[t.cat]}</span>` : ''}
           ${due ? `<span class="due ${due.overdue && !taskDone ? 'overdue' : ''}">〜${due.label}</span>` : ''}
+          ${t.noteA ? `<span class="memo-mark">メモ</span>` : ''}
         </div>
         ${notesHtml}
       </div>
@@ -976,7 +1366,16 @@ function render(){
 
   let html = '';
   if(pending.length){
-    html += `<p class="section-label">未完了（${pending.length}）</p><ul class="tasks">${pending.map(taskRow).join('')}</ul>`;
+    const groupOf = t => !t.due ? '期限なし' : (daysUntil(t.due) < 0 ? '期限を過ぎたもの' : (new Date(t.due + 'T00:00:00').getMonth() + 1) + '月');
+    const groups = [];
+    pending.forEach(t => {
+      const g = groupOf(t);
+      if(!groups.length || groups[groups.length - 1].g !== g) groups.push({ g, items: [] });
+      groups[groups.length - 1].items.push(t);
+    });
+    groups.forEach(x => {
+      html += `<p class="section-label month-label">${x.g}<span>${x.items.length}</span></p><ul class="tasks">${x.items.map(taskRow).join('')}</ul>`;
+    });
   }
   if(done.length){
     html += `<details class="done-group"><summary>完了済み（${done.length}）</summary><ul class="tasks">${done.map(taskRow).join('')}</ul></details>`;
@@ -999,6 +1398,12 @@ function render(){
         t[ta.getAttribute('data-note-field')] = ta.value.trim() || null;
         saveToStorage();
       });
+    });
+    el.querySelector('.task-body').addEventListener('click', (e) => {
+      if(e.target.closest('textarea')) return;
+      const open = el.classList.toggle('expanded');
+      if(open){ expandedIds.add(id); const ta = el.querySelector('.note-input'); if(ta) ta.focus(); }
+      else expandedIds.delete(id);
     });
     el.querySelector('[data-action="delete"]').addEventListener('click', () => deleteTask(id));
     el.querySelector('[data-action="edit"]').addEventListener('click', () => openEditForm(id));
@@ -1026,6 +1431,7 @@ function startListening(){
       if(!seedAttempted){
         seedAttempted = true;
         state.tasks = getDefaultTasks();
+        applyMigrations();
         render();
         saveToStorage();
       }
@@ -1037,10 +1443,16 @@ function startListening(){
     if(remoteString !== lastSavedString){
       state = {
         names: parsed.names || { a: '私', b: '彼' },
-        tasks: (parsed.tasks || []).map(normalizeTask)
+        tasks: (parsed.tasks || []).map(normalizeTask),
+        migrations: parsed.migrations || []
       };
       lastSavedString = remoteString;
       render();
+    }
+    if(applyMigrations()){
+      render();
+      saveToStorage();
+      return;
     }
     setSyncStatus('同期済み ' + timeNow());
   }, (err) => {
@@ -1091,6 +1503,7 @@ function addTask(){
     if(t){
       t.title = title;
       t.assignee = currentAssignee;
+      t.cat = currentCat || null;
       t.due = due || null;
       t.noteA = note;
       t.noteB = note;
@@ -1100,6 +1513,7 @@ function addTask(){
       id: 'task_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
       title,
       assignee: currentAssignee,
+      cat: currentCat || null,
       due: due || null,
       noteA: note, noteB: note,
       doneA: false,
@@ -1118,7 +1532,9 @@ function closeAddForm(){
   document.getElementById('newDue').value = '';
   document.getElementById('newNote').value = '';
   currentAssignee = 'together';
-  document.querySelectorAll('.assignee-btn').forEach(b => b.classList.toggle('active', b.dataset.a === 'together'));
+  currentCat = '';
+  document.querySelectorAll('#assigneePicker .assignee-btn').forEach(b => b.classList.toggle('active', b.dataset.a === 'together'));
+  document.querySelectorAll('#catPicker .assignee-btn').forEach(b => b.classList.toggle('active', b.dataset.c === ''));
   document.getElementById('saveAdd').disabled = true;
   editingId = null;
   document.getElementById('formModeLabel').classList.remove('active');
@@ -1133,7 +1549,9 @@ function openEditForm(id){
   document.getElementById('newTitle').value = t.title;
   document.getElementById('newDue').value = t.due || '';
   document.getElementById('newNote').value = t.noteA || '';
-  document.querySelectorAll('.assignee-btn').forEach(b => b.classList.toggle('active', b.dataset.a === t.assignee));
+  currentCat = t.cat || '';
+  document.querySelectorAll('#assigneePicker .assignee-btn').forEach(b => b.classList.toggle('active', b.dataset.a === t.assignee));
+  document.querySelectorAll('#catPicker .assignee-btn').forEach(b => b.classList.toggle('active', b.dataset.c === currentCat));
   document.getElementById('formModeLabel').classList.add('active');
   document.getElementById('saveAdd').textContent = '更新する';
   document.getElementById('saveAdd').disabled = false;
@@ -1155,7 +1573,20 @@ document.getElementById('assigneePicker').addEventListener('click', (e) => {
   const btn = e.target.closest('.assignee-btn');
   if(!btn) return;
   currentAssignee = btn.dataset.a;
-  document.querySelectorAll('.assignee-btn').forEach(b => b.classList.toggle('active', b === btn));
+  document.querySelectorAll('#assigneePicker .assignee-btn').forEach(b => b.classList.toggle('active', b === btn));
+});
+document.getElementById('catPicker').addEventListener('click', (e) => {
+  const btn = e.target.closest('.assignee-btn');
+  if(!btn) return;
+  currentCat = btn.dataset.c;
+  document.querySelectorAll('#catPicker .assignee-btn').forEach(b => b.classList.toggle('active', b === btn));
+});
+document.getElementById('viewerSwitch').addEventListener('click', (e) => {
+  const b = e.target.closest('button');
+  if(!b) return;
+  viewer = b.dataset.v;
+  try{ localStorage.setItem('wedding_viewer', viewer); }catch(err){}
+  render();
 });
 document.getElementById('refreshBtn').addEventListener('click', () => {
   setSyncStatus('同期済み ' + timeNow());
